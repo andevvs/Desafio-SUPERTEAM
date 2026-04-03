@@ -1,57 +1,75 @@
-# Banco Descentralizado em Solana (Neobank Anchor)
+# 🏦 Neobank Descentralizado na Solana
 
-Este é um programa inteligente em Solana criado usando o framework **Anchor**, cumprindo com o **Desafio 1 (Opção B - Neobank)** do Bootcamp Hackathon Global 2026. 
+<div align="center">
+  <img src="https://img.shields.io/badge/Solana-14F195?style=for-the-badge&logo=solana&logoColor=white" alt="Solana" />
+  <img src="https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white" alt="Rust" />
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+</div>
 
-## O que o programa faz?
-O programa funciona como uma conta bancária on-chain simplificada, permitindo que os usuários realizem operações financeiras básicas como depositar e sacar (SOL nativo). O banco usa fundos depositados pelo próprio dono, assegurado com PDAs (Program Derived Addresses).
+<br />
 
-### Características
-- Criação de uma conta bancária atrelada à *public key* do usuário usando um PDA (`seeds = [b"bank_account", owner_pubkey]`).
-- O programa valida que o resgate e depósitos estão sendo feitos e assinados pelo *owner* da conta, garantindo o controle de acesso e fundos.
+Bem-vindo ao **Neobank na Solana**, uma aplicação desenvolvida durante o **Hackathon Global Bootcamp 2026** (Superteam Brazil + NearX). Atendendo à opção B do Desafio 1! 🚀 
 
----
-
-## Instruções Disponíveis
-
-O programa possui três instruções públicas para interagir:
-
-### 1. `initialize_account`
-Cria a conta (PDA) para o banco associado ao usuário assinante. Ele registra o endereço do criador como o `owner` da conta.  
-**Requisitos**: Assinatura do `owner`.
-
-### 2. `deposit(amount: u64)`
-Deposita lamports (SOL) na conta bancária (PDA) a partir da carteira do dono da conta (`owner`). Realiza um processo de *Cross-Program Invocation* (CPI) nativo via `system_program::transfer`.  
-**Requisitos**: Assinatura do `owner`.
-
-### 3. `withdraw(amount: u64)`
-Saca (retira) lamports (SOL) da conta bancária de volta para a carteira do usuário. O programa verifica se o solicitante e assinante é o verdadeiro `owner` do PDA correspondente ao banco, para garantir a segurança. Verifica via o saldo disponível (`lamports`) usando `.try_borrow_mut_lamports()`.  
-**Requisitos**: Assinatura do `owner`.
+Este projeto constrói um banco descentralizado *(Neobank)* totalmente *on-chain*, permitindo depósitos, saques e verificações de saldo com toda a segurança das **PDAs** *(Program Derived Addresses)*.
 
 ---
 
-## Devnet
+## 🎯 O Que Este Programa Faz?
 
-**Program ID**: `<DEPLOY_PROGRAM_ID>`
+Esse Smart Contract age como um banco simplificado onde os usuários conseguem depositar seus fundos (SOL nativo). O dinheiro fica num "Cofre" restrito vinculado à conta deles, sendo totalmente impossível qualquer pessoa movimentar exceto o verdadeiro criador.
 
-Este programa já está disponível e testado na rede de testes da Solana (Devnet).
+### ✨ Principais Características:
+- 🔐 **Carteira Vinculada**: Calcula dinamicamente o endereço do cofre usando o dono (`owner`) como base `seeds = [b"bank_account", owner_pubkey]`.
+- 💱 **Proteção Extrema**: As rotinas verificam criptograficamente que a transação de depósito e resgate está sendo devidamente requisitada pelo Dono original daquele cofre.
 
 ---
 
-## Como rodar os testes
+## 📜 Instruções Disponíveis (Contrato)
 
-Os testes são automatizados usando o frameowrk `anchor` juntamente de Mocha/Chai. Para rodar a suíte de testes:
+Aqui estão as regras de negócios principais que podem ser chamadas no programa:
 
-1. Certifique-se de que você tem `npm`, `rust` e as cli's de `solana` e `anchor`.
-2. Instale as dependências (TypeScript e módulos):
+### 1️⃣ `initialize_account`
+Abre sua conta bancária na blockchain! Ele reserva um espaço seguro (PDA) e cadastra a sua carteira como o "dono" atrelando a *Bump Seed*. 
+**Requer:** Assinatura do `owner`.
+
+### 2️⃣ `deposit(amount: u64)`
+Realiza a transferência *(Cross-Program Invocation - CPI)* movendo o valor em SOL da sua carteira normal para o PDA bancário (Cofre).
+**Requer:** Assinatura do `owner`.
+
+### 3️⃣ `withdraw(amount: u64)`
+O tão esperado saque! Ele saca o dinheiro depositado previamente e devolu-o via dedução direta de *lamports*, num processo instantâneo e livre das barreiras off-chain.
+**Requer:** Assinatura do `owner` e saldo suficiente na conta bancária (PDA).
+
+---
+
+## 🌐 Deploy na Devnet
+
+🔗 **Program ID:** `2aqMXRCKoxXC9tw42p6AfQuKjsdJfG1bVvtMZ8xwoNqG`
+
+O código está compilado nativamente, referenciando esse id validado e com ambiente já configurado para você usá-lo ou recompilá-lo localmente a qualquer momento.
+
+---
+
+## 🧪 Rodando os Testes Localmente
+
+Preparamos uma suíte nativa em **TypeScript** (usando *Mocha* & *Chai*) para auditar e provar que todas as instruções e permissões ocorrem exatamente da forma estipulada!
+
+**Passo a passo:**
+
+1. 📦 Certifique-se de que o ecossistema Solana encontra-se na sua máquina (`npm`, `rust`, `solana-cli`, `avm`).
+2. 🗂️ Instale as dependências da suíte de teste local executando:
    ```bash
    npm install
    ```
-3. Rode toda a suíte de testes com o `anchor`:
+3. ⚙️ Inicie a suíte que validará o projeto instanciando um validator:
    ```bash
-   anchor test
+   anchor test --skip-build
    ```
-   *Isto engloba compilar o programa e validar as três instruções num LocalValidator.*
 
-## Autor & Hackathon
+*(Utilizamos `--skip-build` pois o binário BPF já foi gerado e validado. Ele acionará seu validador e testará transferências baseadas em fundos locais, fugindo das falhas e gargalos severos de limite na Devnet).*
 
-Criado para o  Bootcamp Hackathon Global 2026, Superteam Brazil + NearX.
+---
+
+<p align="center">
+Feito com 💙 para a comunidade fantástica da <b>Solana</b>. Avante Builders! 🛠️
+</p>
