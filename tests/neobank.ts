@@ -1,13 +1,17 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { assert } from "chai";
+import * as idl from "../target/idl/neobank.json";
 
 describe("neobank", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
-  const program = anchor.workspace.Neobank as Program;
+  // Safely grab the raw JSON IDL from the ts file
+  const rawIdl = idl.IDL;
+  const programId = new anchor.web3.PublicKey("2aqMXRCKoxXC9tw42p6AfQuKjsdJfG1bVvtMZ8xwoNqG");
+  const program = new Program(rawIdl as anchor.Idl, programId, provider);
   const user = anchor.web3.Keypair.generate();
 
   let bankAccountPda: anchor.web3.PublicKey;
