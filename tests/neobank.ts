@@ -1,6 +1,5 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { Neobank } from "../target/types/neobank";
 import { assert } from "chai";
 
 describe("neobank", () => {
@@ -8,7 +7,7 @@ describe("neobank", () => {
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
-  const program = anchor.workspace.Neobank as Program<Neobank>;
+  const program = anchor.workspace.Neobank as Program;
   const user = anchor.web3.Keypair.generate();
 
   let bankAccountPda: anchor.web3.PublicKey;
