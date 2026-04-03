@@ -1,7 +1,7 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { assert } from "chai";
-import * as idl from "../target/idl/neobank.json";
+import { IDL } from "../target/idl/neobank";
 
 describe("neobank", () => {
   // Configure the client to use the local cluster.
@@ -9,9 +9,10 @@ describe("neobank", () => {
   anchor.setProvider(provider);
 
   // Safely grab the raw JSON IDL from the ts file
-  const rawIdl = idl.IDL;
+  const rawIdl = IDL as anchor.Idl;
   const programId = new anchor.web3.PublicKey("2aqMXRCKoxXC9tw42p6AfQuKjsdJfG1bVvtMZ8xwoNqG");
-  const program = new Program(rawIdl as anchor.Idl, programId, provider);
+  const program = new Program(rawIdl, provider);
+
   const user = anchor.web3.Keypair.generate();
 
   let bankAccountPda: anchor.web3.PublicKey;
@@ -20,7 +21,7 @@ describe("neobank", () => {
   before(async () => {
     [bankAccountPda, bump] = anchor.web3.PublicKey.findProgramAddressSync(
       [Buffer.from("bank_account"), user.publicKey.toBuffer()],
-      program.programId
+      programId
     );
     
     // Airdrop some lamports to the user for testing
@@ -37,8 +38,7 @@ describe("neobank", () => {
   });
 
   it("Is initialized!", async () => {
-    // Add your test here.
-    const tx = await program.methods
+    await program.methods
       .initializeAccount()
       .accounts({
         bankAccount: bankAccountPda,
@@ -47,7 +47,7 @@ describe("neobank", () => {
       .signers([user])
       .rpc();
 
-    const account = await program.account.bankAccount.fetch(bankAccountPda);
+    const account = await program.account["bankAccount"].fetch(bankAccountPda) as any;
     assert.ok(account.owner.equals(user.publicKey));
     assert.equal(account.bump, bump);
   });
